@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano de Treino — 12 Semanas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#E8EAE5;          /* cinza de piso de academia */
+    --card:#FFFFFF;
+    --ink:#181B18;
+    --muted:#5C625C;
+    --line:#C9CEC7;
+    /* código de cores das anilhas */
+    --plate-red:#C0392B;   /* inferior */
+    --plate-blue:#2457A0;  /* superior */
+    --plate-green:#2E7D4F; /* cardio/core */
+    --plate-yellow:#C9930A;/* full body */
+    --radius:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Archivo',system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.5;
+    padding-bottom:64px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px}
+
+  /* ---------- header ---------- */
+  header{padding:40px 0 24px;border-bottom:3px solid var(--ink)}
+  .kicker{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  h1{font-family:'Anton',sans-serif;font-size:clamp(40px,9vw,64px);line-height:.95;letter-spacing:.01em;text-transform:uppercase;margin:8px 0 12px}
+  .header-meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted)}
+  .header-meta strong{color:var(--ink)}
+
+  /* ---------- legenda de cores ---------- */
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 8px}
+  .legend span{display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)}
+  .dot{width:12px;height:12px;border-radius:50%;display:inline-block;border:2px solid var(--ink)}
+
+  /* ---------- fases ---------- */
+  .fase{margin-top:40px}
+  .fase-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--ink);padding-bottom:8px;margin-bottom:6px}
+  .fase-head h2{font-family:'Anton',sans-serif;font-size:26px;text-transform:uppercase;letter-spacing:.02em}
+  .fase-head .periodo{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted)}
+  .fase-obs{font-size:14.5px;color:var(--muted);margin-bottom:20px;max-width:62ch}
+
+  /* ---------- navegação de dias ---------- */
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 14px;-webkit-overflow-scrolling:touch}
+  .tab{
+    flex:0 0 auto;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;
+    padding:10px 14px;border-radius:999px;
+    border:2px solid var(--ink);background:var(--card);color:var(--ink);
+    cursor:pointer;white-space:nowrap;
+    border-left-width:10px;
+    transition:transform .1s ease;
+  }
+  .tab:hover{transform:translateY(-1px)}
+  .tab:focus-visible{outline:3px solid var(--plate-blue);outline-offset:2px}
+  .tab[aria-selected="true"]{background:var(--ink);color:#fff}
+  .tab.red{border-left-color:var(--plate-red)}
+  .tab.blue{border-left-color:var(--plate-blue)}
+  .tab.green{border-left-color:var(--plate-green)}
+  .tab.yellow{border-left-color:var(--plate-yellow)}
+
+  /* ---------- painel do dia ---------- */
+  .day{display:none;animation:fade .18s ease}
+  .day.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.day{animation:none}.tab{transition:none}}
+
+  .day-title{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Anton',sans-serif;font-size:22px;text-transform:uppercase;
+    margin:6px 0 4px;
+  }
+  .day-title .dot{width:16px;height:16px}
+  .day-sub{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted);margin-bottom:16px}
+
+  /* ---------- cartão de exercício ---------- */
+  .ex{
+    background:var(--card);
+    border:1.5px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    margin-bottom:10px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:4px 14px;
+    align-items:center;
+  }
+  .ex-nome{font-weight:600;font-size:16px}
+  .ex-nota{grid-column:1 / -1;font-size:13.5px;color:var(--muted)}
+  .ex-carga{
+    font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;
+    white-space:nowrap;text-align:right;
+  }
+  .ex-video{
+    grid-column:1 / -1;
+    justify-self:start;
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500;
+    color:var(--ink);text-decoration:none;
+    border:1.5px solid var(--ink);border-radius:6px;
+    padding:5px 10px;margin-top:6px;
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--bg);
+  }
+  .ex-video:hover{background:var(--ink);color:#fff}
+  .ex-video:focus-visible{outline:3px solid var(--plate-blue);outline-offset:2px}
+  .ex-video::before{content:"▶";font-size:10px}
+
+  /* ---------- diário de carga ---------- */
+  .diario{margin-top:44px}
+  .diario .fase-obs{margin-bottom:16px}
+  .diario-form{
+    background:var(--card);border:2px solid var(--ink);border-radius:var(--radius);
+    padding:18px 16px;
+  }
+  .diario-form .campo{margin-bottom:14px}
+  .diario-form label{
+    display:block;font-family:'IBM Plex Mono',monospace;font-size:12px;
+    text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;
+  }
+  .diario-form input[type="date"],
+  .diario-form select{
+    width:100%;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:15px;
+    border:1.5px solid var(--ink);border-radius:6px;background:var(--bg);color:var(--ink);
+  }
+  .carga-linha{
+    display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:center;
+    padding:8px 0;border-bottom:1px dashed var(--line);
+  }
+  .carga-linha:last-child{border-bottom:none}
+  .carga-linha .nome{font-size:14.5px;font-weight:500}
+  .carga-linha input{
+    width:100%;padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:15px;
+    border:1.5px solid var(--line);border-radius:6px;text-align:right;background:#fff;
+  }
+  .carga-linha input:focus{outline:none;border-color:var(--ink)}
+  .btn-salvar{
+    margin-top:14px;width:100%;padding:12px;
+    font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+    background:var(--ink);color:#fff;border:none;border-radius:8px;cursor:pointer;
+  }
+  .btn-salvar:hover{background:#2E332E}
+  .btn-salvar:focus-visible{outline:3px solid var(--plate-blue);outline-offset:2px}
+  .diario-status{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--plate-green);margin-top:8px;min-height:18px}
+
+  .historico{margin-top:22px}
+  .historico h3{font-family:'Anton',sans-serif;font-size:18px;text-transform:uppercase;margin-bottom:10px}
+  .hist-item{
+    background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);
+    padding:12px 14px;margin-bottom:8px;
+  }
+  .hist-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+  .hist-head .quando{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600}
+  .hist-head .qual{font-size:13px;color:var(--muted)}
+  .hist-cargas{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--muted);line-height:1.7}
+  .hist-cargas b{color:var(--ink);font-weight:600}
+  .hist-del{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--plate-red);
+    background:none;border:none;cursor:pointer;padding:2px 0;margin-top:4px;text-decoration:underline;
+  }
+  .hist-vazio{font-size:14px;color:var(--muted)}
+
+  /* ---------- hábitos & outcomes ---------- */
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;
+    padding:8px 12px;border-radius:999px;border:1.5px solid var(--ink);
+    background:var(--card);color:var(--ink);cursor:pointer;
+  }
+  .chip[aria-pressed="true"]{background:var(--plate-green);border-color:var(--plate-green);color:#fff}
+  .chip:focus-visible{outline:3px solid var(--plate-blue);outline-offset:2px}
+  .add-habito{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px}
+  .add-habito input{
+    padding:9px 12px;font-family:'IBM Plex Mono',monospace;font-size:13px;
+    border:1.5px solid var(--line);border-radius:6px;background:#fff;
+  }
+  .add-habito input:focus{outline:none;border-color:var(--ink)}
+  .add-habito button{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;
+    padding:9px 14px;border:1.5px solid var(--ink);border-radius:6px;
+    background:var(--card);cursor:pointer;
+  }
+  .add-habito button:hover{background:var(--ink);color:#fff}
+  .segmento{display:flex;gap:0;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;width:fit-content}
+  .segmento button{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;
+    padding:9px 16px;border:none;background:var(--card);color:var(--ink);cursor:pointer;
+    border-right:1.5px solid var(--ink);
+  }
+  .segmento button:last-child{border-right:none}
+  .segmento button[aria-pressed="true"]{background:var(--ink);color:#fff;font-weight:600}
+  .segmento button:focus-visible{outline:3px solid var(--plate-blue);outline-offset:-3px}
+  .outcome-linha{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:12px}
+  .outcome-linha .nome{font-size:14.5px;font-weight:500;min-width:90px}
+  .ultima-carga{
+    grid-column:1 / -1;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--plate-green);font-weight:600;
+  }
+
+  /* ---------- regras / rodapé ---------- */
+  .regras{
+    margin-top:44px;background:var(--ink);color:#EDEFEA;
+    border-radius:var(--radius);padding:22px 20px;
+  }
+  .regras h2{font-family:'Anton',sans-serif;font-size:20px;text-transform:uppercase;margin-bottom:12px}
+  .regras p{font-size:14.5px;margin-bottom:10px;color:#C9CEC7}
+  .regras strong{color:#fff}
+  .regras .macros{
+    display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;
+  }
+  .regras .macros span{border:1px solid #4A4F4A;border-radius:6px;padding:6px 10px}
+
+  footer{margin-top:28px;font-size:12.5px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">Programa de 12 semanas · 5x/semana</p>
+  <h1>Plano de<br>Treino</h1>
+  <div class="header-meta">
+    <span>Objetivo: <strong>perda de gordura + hipertrofia</strong></span>
+    <span>Ritmo-alvo: <strong>0,7–0,8 kg/sem</strong></span>
+    <span>Descanso entre séries: <strong>60–90s</strong></span>
+  </div>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--plate-yellow)"></i> Full body</span>
+    <span><i class="dot" style="background:var(--plate-red)"></i> Inferior</span>
+    <span><i class="dot" style="background:var(--plate-blue)"></i> Superior</span>
+    <span><i class="dot" style="background:var(--plate-green)"></i> Cardio + core</span>
+  </div>
+</header>
+
+<!-- ================= FASE 1 ================= -->
+<section class="fase">
+  <div class="fase-head">
+    <h2>Fase 1 — Adaptação</h2>
+    <span class="periodo">Semanas 1–4</span>
+  </div>
+  <p class="fase-obs">Objetivo aqui é aprender o padrão de movimento e criar consistência. Carga que deixe 2–3 repetições "na reserva" — a última rep deve ser difícil, não impossível. O treino full body é o mesmo Seg/Qua/Sex.</p>
+
+  <div class="tabs" role="tablist" aria-label="Dias da Fase 1">
+    <button class="tab yellow" role="tab" aria-selected="true" data-target="f1-fullbody">Seg · Qua · Sex</button>
+    <button class="tab green" role="tab" aria-selected="false" data-target="f1-cardio">Ter · Qui</button>
+  </div>
+
+  <div class="day active" id="f1-fullbody" role="tabpanel">
+    <h3 class="day-title"><i class="dot" style="background:var(--plate-yellow)"></i> Full Body</h3>
+    <p class="day-sub">6 exercícios · ~50 min</p>
+
+    <div class="ex">
+      <span class="ex-nome">Agachamento goblet</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <span class="ex-nota">Halter junto ao peito, desce até coxas paralelas ao chão, calcanhar no chão.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+agachamento+goblet">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Leg press 45°</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <span class="ex-nota">Pés na largura do quadril, desce até 90°, não trave os joelhos no topo.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+leg+press+45">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Supino na máquina</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <span class="ex-nota">Escápulas retraídas, empurra sem estender totalmente o cotovelo.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+supino+maquina">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Remada na máquina</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <span class="ex-nota">Puxa com as costas, não com o braço — pense em levar o cotovelo para trás.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+remada+maquina">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Desenvolvimento com halteres</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <span class="ex-nota">Sentada com encosto, sobe os halteres até quase estender, sem arquear a lombar.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+desenvolvimento+halteres+ombro">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Prancha</span>
+      <span class="ex-carga">3 × 30–45s</span>
+      <span class="ex-nota">Corpo em linha reta, abdômen contraído. Se tremer antes dos 30s, apoie os joelhos.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+prancha+abdominal+correta">ver demonstração</a>
+    </div>
+  </div>
+
+  <div class="day" id="f1-cardio" role="tabpanel">
+    <h3 class="day-title"><i class="dot" style="background:var(--plate-green)"></i> Cardio Zona 2</h3>
+    <p class="day-sub">30–40 min · intensidade conversável</p>
+
+    <div class="ex">
+      <span class="ex-nome">Caminhada inclinada (esteira) ou bike</span>
+      <span class="ex-carga">30–40 min</span>
+      <span class="ex-nota">Zona 2: você consegue conversar, mas não cantar. Na esteira: 5,5–6,5 km/h com inclinação 6–10%.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=caminhada+inclinada+esteira+queima+gordura+como+fazer">ver demonstração</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FASE 2 ================= -->
+<section class="fase">
+  <div class="fase-head">
+    <h2>Fase 2 — Progressão</h2>
+    <span class="periodo">Semanas 5–12</span>
+  </div>
+  <p class="fase-obs">Divisão Inferior/Superior com volume maior. Regra de progressão: quando completar todas as séries no topo da faixa de repetições, aumente a carga no próximo treino (2–5%). Registre tudo.</p>
+
+  <div class="tabs" role="tablist" aria-label="Dias da Fase 2">
+    <button class="tab red" role="tab" aria-selected="true" data-target="f2-seg">Seg</button>
+    <button class="tab blue" role="tab" aria-selected="false" data-target="f2-ter">Ter</button>
+    <button class="tab green" role="tab" aria-selected="false" data-target="f2-qua">Qua</button>
+    <button class="tab red" role="tab" aria-selected="false" data-target="f2-qui">Qui</button>
+    <button class="tab blue" role="tab" aria-selected="false" data-target="f2-sex">Sex</button>
+  </div>
+
+  <!-- SEG -->
+  <div class="day active" id="f2-seg" role="tabpanel">
+    <h3 class="day-title"><i class="dot" style="background:var(--plate-red)"></i> Segunda — Inferior A</h3>
+    <p class="day-sub">5 exercícios · ~55 min</p>
+
+    <div class="ex">
+      <span class="ex-nome">Agachamento livre ou hack</span>
+      <span class="ex-carga">4 × 8–10</span>
+      <span class="ex-nota">Exercício principal do dia — faça descansada, com 90s de pausa.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+agachamento+livre+barra+tecnica">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Terra romeno (stiff)</span>
+      <span class="ex-carga">3 × 8–10</span>
+      <span class="ex-nota">Coluna neutra, quadril vai para trás, alonga posterior de coxa. Barra rente à perna.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+terra+romeno+levantamento+stiff">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Leg press 45°</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+leg+press+45">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Cadeira flexora</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+cadeira+flexora">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Panturrilha em pé</span>
+      <span class="ex-carga">3 × 12–15</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+panturrilha+em+pe+maquina">ver demonstração</a>
+    </div>
+  </div>
+
+  <!-- TER -->
+  <div class="day" id="f2-ter" role="tabpanel">
+    <h3 class="day-title"><i class="dot" style="background:var(--plate-blue)"></i> Terça — Superior A</h3>
+    <p class="day-sub">5 exercícios · ~55 min</p>
+
+    <div class="ex">
+      <span class="ex-nome">Supino reto com halteres</span>
+      <span class="ex-carga">4 × 8–10</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+supino+reto+halteres">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Remada curvada</span>
+      <span class="ex-carga">4 × 8–10</span>
+      <span class="ex-nota">Tronco inclinado ~45°, coluna neutra. Se a lombar cansar antes das costas, use remada apoiada no banco.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+remada+curvada+barra">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Desenvolvimento com halteres</span>
+      <span class="ex-carga">3 × 8–10</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+desenvolvimento+halteres+ombro">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Puxada frontal (pulley)</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+puxada+frontal+pulley">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Elevação lateral</span>
+      <span class="ex-carga">3 × 12–15</span>
+      <span class="ex-nota">Carga leve, movimento controlado — subir até a linha do ombro basta.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+elevacao+lateral+halteres">ver demonstração</a>
+    </div>
+  </div>
+
+  <!-- QUA -->
+  <div class="day" id="f2-qua" role="tabpanel">
+    <h3 class="day-title"><i class="dot" style="background:var(--plate-green)"></i> Quarta — Cardio + Core</h3>
+    <p class="day-sub">~50 min</p>
+
+    <div class="ex">
+      <span class="ex-nome">Cardio zona 2 (esteira inclinada ou bike)</span>
+      <span class="ex-carga">40 min</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=cardio+zona+2+como+fazer+esteira">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Prancha</span>
+      <span class="ex-carga">3 × 45s</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+prancha+abdominal+correta">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Dead bug</span>
+      <span class="ex-carga">3 × 10/lado</span>
+      <span class="ex-nota">Lombar colada no chão o tempo todo — é isso que faz o exercício funcionar.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+dead+bug+exercicio">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Abdominal na polia (crunch no cabo)</span>
+      <span class="ex-carga">3 × 12</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+abdominal+polia+cabo">ver demonstração</a>
+    </div>
+  </div>
+
+  <!-- QUI -->
+  <div class="day" id="f2-qui" role="tabpanel">
+    <h3 class="day-title"><i class="dot" style="background:var(--plate-red)"></i> Quinta — Inferior B</h3>
+    <p class="day-sub">5 exercícios · ~55 min</p>
+
+    <div class="ex">
+      <span class="ex-nome">Hip thrust (elevação pélvica)</span>
+      <span class="ex-carga">4 × 8–10</span>
+      <span class="ex-nota">Queixo levemente para baixo, contrai o glúteo no topo por 1s.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+hip+thrust+elevacao+pelvica">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Agachamento búlgaro</span>
+      <span class="ex-carga">3 × 8–10/perna</span>
+      <span class="ex-nota">Pé de trás no banco. Comece só com o peso do corpo até equilibrar bem.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+agachamento+bulgaro">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Cadeira extensora</span>
+      <span class="ex-carga">3 × 12</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+cadeira+extensora">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Cadeira abdutora</span>
+      <span class="ex-carga">3 × 12–15</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+cadeira+abdutora">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Panturrilha sentada</span>
+      <span class="ex-carga">3 × 15</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+panturrilha+sentada">ver demonstração</a>
+    </div>
+  </div>
+
+  <!-- SEX -->
+  <div class="day" id="f2-sex" role="tabpanel">
+    <h3 class="day-title"><i class="dot" style="background:var(--plate-blue)"></i> Sexta — Superior B</h3>
+    <p class="day-sub">6 exercícios · ~55 min</p>
+
+    <div class="ex">
+      <span class="ex-nome">Supino inclinado com halteres</span>
+      <span class="ex-carga">4 × 8–10</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+supino+inclinado+halteres">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Puxada aberta (pegada larga)</span>
+      <span class="ex-carga">4 × 8–10</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+puxada+aberta+pegada+larga">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Remada baixa (triângulo)</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+remada+baixa+triangulo">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Crucifixo inverso (máquina ou halteres)</span>
+      <span class="ex-carga">3 × 12–15</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+crucifixo+inverso">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Rosca direta</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+rosca+direta+halteres">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Tríceps na corda</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+triceps+corda+polia">ver demonstração</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DIÁRIO ================= -->
+<section class="fase diario">
+  <div class="fase-head">
+    <h2>Diário de Carga</h2>
+    <span class="periodo">registre cada treino</span>
+  </div>
+  <p class="fase-obs">Escolha a data e o treino do dia, anote a carga usada em cada exercício e salve. A última carga registrada aparece em verde no cartão do exercício — é ela que você tenta superar.</p>
+
+  <div class="diario-form">
+    <div class="campo">
+      <label for="log-data">Data do treino</label>
+      <input type="date" id="log-data">
+    </div>
+    <div class="campo">
+      <label for="log-dia">Treino realizado</label>
+      <select id="log-dia">
+        <option value="f1-fullbody">Fase 1 — Full Body</option>
+        <option value="f1-cardio">Fase 1 — Cardio Zona 2</option>
+        <option value="f2-seg">Fase 2 — Seg · Inferior A</option>
+        <option value="f2-ter">Fase 2 — Ter · Superior A</option>
+        <option value="f2-qua">Fase 2 — Qua · Cardio + Core</option>
+        <option value="f2-qui">Fase 2 — Qui · Inferior B</option>
+        <option value="f2-sex">Fase 2 — Sex · Superior B</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label>Registro por exercício (unidade indicada em cada campo)</label>
+      <div id="log-exercicios"></div>
+    </div>
+    <button class="btn-salvar" id="log-salvar">Salvar treino</button>
+    <p class="diario-status" id="log-status" role="status"></p>
+  </div>
+
+  <div class="historico">
+    <h3>Histórico</h3>
+    <div id="hist-lista"><p class="hist-vazio">Nenhum treino registrado ainda.</p></div>
+  </div>
+</section>
+
+<!-- ================= HÁBITOS & OUTCOMES ================= -->
+<section class="fase diario">
+  <div class="fase-head">
+    <h2>Hábitos &amp; Outcomes</h2>
+    <span class="periodo">registro diário</span>
+  </div>
+  <p class="fase-obs">Marque o que cumpriu no dia e registre os outcomes. Salvar duas vezes na mesma data substitui o registro local daquele dia.</p>
+
+  <div class="diario-form">
+    <div class="campo">
+      <label for="hab-data">Data</label>
+      <input type="date" id="hab-data">
+    </div>
+    <div class="campo">
+      <label>Hábitos cumpridos hoje</label>
+      <div class="chips" id="hab-chips"></div>
+      <div class="add-habito">
+        <input type="text" id="hab-novo" placeholder="novo hábito…">
+        <button id="hab-add" type="button">+ adicionar</button>
+      </div>
+    </div>
+    <div class="campo">
+      <label>Outcomes</label>
+      <div class="outcome-linha">
+        <span class="nome">Sono</span>
+        <div class="segmento" id="out-sono" role="group" aria-label="Qualidade do sono">
+          <button type="button" data-valor="ruim" aria-pressed="false">ruim</button>
+          <button type="button" data-valor="okay" aria-pressed="false">okay</button>
+          <button type="button" data-valor="bom" aria-pressed="false">bom</button>
+        </div>
+      </div>
+      <div class="outcome-linha">
+        <span class="nome">Evacuação</span>
+        <div class="segmento" id="out-evacuacao" role="group" aria-label="Evacuação">
+          <button type="button" data-valor="sim" aria-pressed="false">sim</button>
+          <button type="button" data-valor="não" aria-pressed="false">não</button>
+        </div>
+      </div>
+    </div>
+    <button class="btn-salvar" id="hab-salvar">Salvar dia</button>
+    <p class="diario-status" id="hab-status" role="status"></p>
+  </div>
+
+  <div class="historico">
+    <h3>Últimos dias</h3>
+    <div id="hab-lista"><p class="hist-vazio">Nenhum dia registrado ainda.</p></div>
+  </div>
+</section>
+
+<!-- ================= REGRAS ================= -->
+<section class="regras">
+  <h2>Regras do programa</h2>
+  <p><strong>Progressão de carga:</strong> completou todas as séries no topo da faixa de reps? Suba a carga no próximo treino. Anote tudo — sem registro, não há progressão.</p>
+  <p><strong>Esforço:</strong> Fase 1 com 2–3 reps na reserva; Fase 2 com 1–2 na reserva nos exercícios principais.</p>
+  <p><strong>Faltou um dia?</strong> Não compense dobrando — retome no dia seguinte. Consistência de 12 semanas vale mais que qualquer semana perfeita.</p>
+  <p><strong>Reavaliação:</strong> a cada 4 semanas — peso (média semanal), medidas de fita e fotos. Estagnou 2 semanas? Corte 100–150 kcal ou adicione 10 min de cardio.</p>
+  <div class="macros">
+    <span>1.800 kcal/dia</span>
+    <span>Proteína 130g</span>
+    <span>Carbo 185g</span>
+    <span>Gordura 60g</span>
+  </div>
+</section>
+
+<footer>
+  <p>Os links "ver demonstração" abrem uma busca no YouTube pelo exercício — escolha um vídeo curto de técnica antes da primeira execução.</p>
+</footer>
+
+</div>
+
+<script>
+  var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzqHpwza5BxQjxUrEsx55cL6M94mfFv5dNf9v9EJRy7M3dLx3c60bsrJYp-WS0fBnJTZg/exec';
+
+  document.querySelectorAll('.tabs').forEach(function(tablist){
+    var tabs = tablist.querySelectorAll('.tab');
+    tabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        var section = tablist.closest('.fase');
+        tabs.forEach(function(t){ t.setAttribute('aria-selected','false'); });
+        tab.setAttribute('aria-selected','true');
+        section.querySelectorAll('.day').forEach(function(d){ d.classList.remove('active'); });
+        section.querySelector('#' + tab.dataset.target).classList.add('active');
+      });
+    });
+  });
+
+  /* ================= DIÁRIO DE CARGA ================= */
+  (function(){
+    var KEY = 'treino-log-v1';
+    var memoria = null; // fallback se nenhum armazenamento estiver disponível
+
+    // Adaptador: window.storage (Claude) -> localStorage (arquivo local) -> memória
+    async function carregar(){
+      try{
+        if (window.storage){
+          try{
+            var r = await window.storage.get(KEY);
+            return r && r.value ? JSON.parse(r.value) : [];
+          }catch(e){ return []; } // chave ainda não existe
+        }
+        if (window.localStorage){
+          var v = localStorage.getItem(KEY);
+          return v ? JSON.parse(v) : [];
+        }
+      }catch(e){}
+      return memoria || [];
+    }
+    async function gravar(dados){
+      var json = JSON.stringify(dados);
+      try{
+        if (window.storage){ await window.storage.set(KEY, json); return true; }
+        if (window.localStorage){ localStorage.setItem(KEY, json); return true; }
+      }catch(e){}
+      memoria = dados; // último recurso: só dura enquanto a página está aberta
+      return false;
+    }
+
+    var nomesDias = {
+      'f1-fullbody':'Fase 1 — Full Body',
+      'f1-cardio':'Fase 1 — Cardio Zona 2',
+      'f2-seg':'Seg — Inferior A',
+      'f2-ter':'Ter — Superior A',
+      'f2-qua':'Qua — Cardio + Core',
+      'f2-qui':'Qui — Inferior B',
+      'f2-sex':'Sex — Superior B'
+    };
+
+    function exerciciosDoDia(dayId){
+      var painel = document.getElementById(dayId);
+      if (!painel) return [];
+      return Array.from(painel.querySelectorAll('.ex-nome')).map(function(el){ return el.textContent.trim(); });
+    }
+
+    function unidadeDe(nome){
+      var n = nome.toLowerCase();
+      if (n.indexOf('prancha') !== -1) return 's';
+      if (n.indexOf('cardio') !== -1 || n.indexOf('caminhada') !== -1) return 'min';
+      if (n.indexOf('dead bug') !== -1) return 'reps';
+      return 'kg';
+    }
+
+    function montarCampos(){
+      var dayId = document.getElementById('log-dia').value;
+      var alvo = document.getElementById('log-exercicios');
+      alvo.innerHTML = '';
+      exerciciosDoDia(dayId).forEach(function(nome, i){
+        var linha = document.createElement('div');
+        linha.className = 'carga-linha';
+        var span = document.createElement('span');
+        span.className = 'nome';
+        span.textContent = nome;
+        var input = document.createElement('input');
+        input.type = 'number';
+        input.inputMode = 'decimal';
+        input.step = '0.5';
+        input.min = '0';
+        input.placeholder = unidadeDe(nome);
+        input.dataset.exercicio = nome;
+        linha.appendChild(span);
+        linha.appendChild(input);
+        alvo.appendChild(linha);
+      });
+    }
+
+    function fmtData(iso){
+      var p = iso.split('-');
+      return p[2] + '/' + p[1] + '/' + p[0];
+    }
+
+    function renderHistorico(dados){
+      var lista = document.getElementById('hist-lista');
+      lista.innerHTML = '';
+      if (!dados.length){
+        lista.innerHTML = '<p class="hist-vazio">Nenhum treino registrado ainda.</p>';
+        return;
+      }
+      dados.slice().sort(function(a,b){ return b.data.localeCompare(a.data); }).forEach(function(entrada){
+        var div = document.createElement('div');
+        div.className = 'hist-item';
+        var cargas = Object.keys(entrada.cargas).map(function(ex){
+          return ex + ': <b>' + entrada.cargas[ex] + unidadeDe(ex) + '</b>';
+        }).join(' · ');
+        div.innerHTML =
+          '<div class="hist-head"><span class="quando">' + fmtData(entrada.data) + '</span>' +
+          '<span class="qual">' + (nomesDias[entrada.dia] || entrada.dia) + '</span></div>' +
+          '<div class="hist-cargas">' + cargas + '</div>';
+        var del = document.createElement('button');
+        del.className = 'hist-del';
+        del.textContent = 'excluir registro';
+        del.addEventListener('click', async function(){
+          var dados2 = await carregar();
+          dados2 = dados2.filter(function(e){ return e.id !== entrada.id; });
+          await gravar(dados2);
+          renderHistorico(dados2);
+          marcarUltimasCargas(dados2);
+        });
+        div.appendChild(del);
+        lista.appendChild(div);
+      });
+    }
+
+    // Mostra a última carga registrada dentro do cartão de cada exercício
+    function marcarUltimasCargas(dados){
+      document.querySelectorAll('.ultima-carga').forEach(function(el){ el.remove(); });
+      var ultimas = {}; // "dayId||exercicio" -> {data, carga}
+      dados.forEach(function(entrada){
+        Object.keys(entrada.cargas).forEach(function(ex){
+          var chave = entrada.dia + '||' + ex;
+          if (!ultimas[chave] || entrada.data > ultimas[chave].data){
+            ultimas[chave] = { data: entrada.data, carga: entrada.cargas[ex] };
+          }
+        });
+      });
+      Object.keys(ultimas).forEach(function(chave){
+        var partes = chave.split('||');
+        var painel = document.getElementById(partes[0]);
+        if (!painel) return;
+        painel.querySelectorAll('.ex').forEach(function(card){
+          var nomeEl = card.querySelector('.ex-nome');
+          if (nomeEl && nomeEl.textContent.trim() === partes[1]){
+            var tag = document.createElement('span');
+            tag.className = 'ultima-carga';
+            tag.textContent = 'última: ' + ultimas[chave].carga + unidadeDe(partes[1]) + ' (' + fmtData(ultimas[chave].data) + ')';
+            card.appendChild(tag);
+          }
+        });
+      });
+    }
+
+    async function salvar(){
+      var data = document.getElementById('log-data').value;
+      var status = document.getElementById('log-status');
+      if (!data){ status.textContent = 'Escolha a data do treino.'; status.style.color = 'var(--plate-red)'; return; }
+      var cargas = {};
+      document.querySelectorAll('#log-exercicios input').forEach(function(inp){
+        if (inp.value !== '') cargas[inp.dataset.exercicio] = parseFloat(inp.value);
+      });
+      if (!Object.keys(cargas).length){ status.textContent = 'Preencha a carga de pelo menos um exercício.'; status.style.color = 'var(--plate-red)'; return; }
+      var dia = document.getElementById('log-dia').value;
+      var dados = await carregar();
+      dados.push({ id: Date.now(), data: data, dia: dia, cargas: cargas });
+      var persistiu = await gravar(dados);
+      renderHistorico(dados);
+      marcarUltimasCargas(dados);
+      document.querySelectorAll('#log-exercicios input').forEach(function(inp){ inp.value = ''; });
+
+      // envio ao Google Sheets via Apps Script
+      var enviouSheets = false;
+      var urlSheets = SHEETS_URL;
+      if (urlSheets){
+        var linhas = Object.keys(cargas).map(function(ex){
+          return { data: fmtData(data), treino: nomesDias[dia] || dia, exercicio: ex, carga: cargas[ex] };
+        });
+        try{
+          await fetch(urlSheets, {
+            method: 'POST',
+            mode: 'no-cors', // Apps Script não retorna cabeçalhos CORS; envio "às cegas"
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ linhas: linhas })
+          });
+          enviouSheets = true;
+        }catch(e){ enviouSheets = false; }
+      }
+
+      status.style.color = 'var(--plate-green)';
+      if (enviouSheets){
+        status.textContent = 'Treino salvo e enviado ao Google Sheets.';
+      } else if (urlSheets){
+        status.style.color = 'var(--plate-red)';
+        status.textContent = 'Salvo no dispositivo, mas o envio ao Sheets falhou — confira a URL e sua conexão.';
+      } else {
+        status.textContent = persistiu ? 'Treino salvo neste dispositivo.' : 'Salvo apenas nesta sessão — o navegador não permitiu armazenamento permanente.';
+      }
+    }
+
+    // init
+    var hoje = new Date();
+    document.getElementById('log-data').value =
+      hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0') + '-' + String(hoje.getDate()).padStart(2,'0');
+    document.getElementById('log-dia').addEventListener('change', montarCampos);
+    document.getElementById('log-salvar').addEventListener('click', salvar);
+    montarCampos();
+    carregar().then(function(dados){
+      renderHistorico(dados);
+      marcarUltimasCargas(dados);
+    });
+  })();
+
+  /* ================= HÁBITOS & OUTCOMES ================= */
+  (function(){
+    var HABKEY = 'habitos-log-v1';
+    var LISTAKEY = 'habitos-lista-v1';
+    var PADRAO = ['Suplementos manhã','Suplementos tarde','Tretinoína','Azelan','Macro proteína','Macro gordura','Macro carboidrato','Ingestão lactose','Ingestão açúcar','Menstruação'];
+    var memoria = {};
+
+    async function ler(chave, fallback){
+      try{
+        if (window.storage){
+          try{ var r = await window.storage.get(chave); return r && r.value ? JSON.parse(r.value) : fallback; }
+          catch(e){ return fallback; }
+        }
+        if (window.localStorage){
+          var v = localStorage.getItem(chave);
+          return v ? JSON.parse(v) : fallback;
+        }
+      }catch(e){}
+      return memoria[chave] || fallback;
+    }
+    async function escrever(chave, dados){
+      var json = JSON.stringify(dados);
+      try{
+        if (window.storage){ await window.storage.set(chave, json); return true; }
+        if (window.localStorage){ localStorage.setItem(chave, json); return true; }
+      }catch(e){}
+      memoria[chave] = dados;
+      return false;
+    }
+
+    function fmtData(iso){ var p = iso.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+
+    var lista = PADRAO.slice();
+
+    function renderChips(marcados){
+      marcados = marcados || [];
+      var alvo = document.getElementById('hab-chips');
+      alvo.innerHTML = '';
+      lista.forEach(function(nome){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chip';
+        b.textContent = nome;
+        b.setAttribute('aria-pressed', marcados.indexOf(nome) !== -1 ? 'true' : 'false');
+        b.addEventListener('click', function(){
+          b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        });
+        alvo.appendChild(b);
+      });
+    }
+
+    function setSegmento(id, valor){
+      document.querySelectorAll('#' + id + ' button').forEach(function(b){
+        b.setAttribute('aria-pressed', b.dataset.valor === valor ? 'true' : 'false');
+      });
+    }
+    function getSegmento(id){
+      var sel = document.querySelector('#' + id + ' button[aria-pressed="true"]');
+      return sel ? sel.dataset.valor : null;
+    }
+    ['out-sono','out-evacuacao'].forEach(function(id){
+      document.querySelectorAll('#' + id + ' button').forEach(function(b){
+        b.addEventListener('click', function(){
+          var ja = b.getAttribute('aria-pressed') === 'true';
+          setSegmento(id, ja ? null : b.dataset.valor);
+        });
+      });
+    });
+
+    async function preencherDia(){
+      var data = document.getElementById('hab-data').value;
+      var reg = await ler(HABKEY, []);
+      var dia = reg.find(function(e){ return e.data === data; });
+      renderChips(dia ? dia.habitos : []);
+      setSegmento('out-sono', dia ? dia.sono : null);
+      setSegmento('out-evacuacao', dia ? dia.evacuacao : null);
+    }
+
+    function renderHistoricoHab(reg){
+      var alvo = document.getElementById('hab-lista');
+      alvo.innerHTML = '';
+      if (!reg.length){ alvo.innerHTML = '<p class="hist-vazio">Nenhum dia registrado ainda.</p>'; return; }
+      reg.slice().sort(function(a,b){ return b.data.localeCompare(a.data); }).slice(0,14).forEach(function(e){
+        var div = document.createElement('div');
+        div.className = 'hist-item';
+        var partes = [];
+        if (e.sono) partes.push('sono: <b>' + e.sono + '</b>');
+        if (e.evacuacao) partes.push('evacuação: <b>' + e.evacuacao + '</b>');
+        partes.push('hábitos: <b>' + e.habitos.length + '/' + lista.length + '</b>' + (e.habitos.length ? ' (' + e.habitos.join(', ') + ')' : ''));
+        div.innerHTML = '<div class="hist-head"><span class="quando">' + fmtData(e.data) + '</span></div>' +
+                        '<div class="hist-cargas">' + partes.join(' · ') + '</div>';
+        var del = document.createElement('button');
+        del.className = 'hist-del';
+        del.textContent = 'excluir registro';
+        del.addEventListener('click', async function(){
+          var reg2 = await ler(HABKEY, []);
+          reg2 = reg2.filter(function(x){ return x.data !== e.data; });
+          await escrever(HABKEY, reg2);
+          renderHistoricoHab(reg2);
+        });
+        div.appendChild(del);
+        alvo.appendChild(div);
+      });
+    }
+
+    async function salvarDia(){
+      var data = document.getElementById('hab-data').value;
+      var status = document.getElementById('hab-status');
+      if (!data){ status.textContent = 'Escolha a data.'; status.style.color = 'var(--plate-red)'; return; }
+      var marcados = Array.from(document.querySelectorAll('#hab-chips .chip[aria-pressed="true"]')).map(function(b){ return b.textContent; });
+      var entrada = { data: data, habitos: marcados, sono: getSegmento('out-sono'), evacuacao: getSegmento('out-evacuacao') };
+
+      var reg = await ler(HABKEY, []);
+      reg = reg.filter(function(e){ return e.data !== data; });
+      reg.push(entrada);
+      var persistiu = await escrever(HABKEY, reg);
+      renderHistoricoHab(reg);
+
+      // envio ao Sheets (aba "Hábitos e Outcomes")
+      var enviou = false;
+      var url = SHEETS_URL;
+      if (url){
+        var linhas = lista.map(function(h){
+          return { data: fmtData(data), categoria: 'Hábito', item: h, valor: marcados.indexOf(h) !== -1 ? 'sim' : 'não' };
+        });
+        if (entrada.sono) linhas.push({ data: fmtData(data), categoria: 'Outcome', item: 'Sono', valor: entrada.sono });
+        if (entrada.evacuacao) linhas.push({ data: fmtData(data), categoria: 'Outcome', item: 'Evacuação', valor: entrada.evacuacao });
+        try{
+          await fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify({ tipo:'habitos', linhas: linhas }) });
+          enviou = true;
+        }catch(e){}
+      }
+
+      status.style.color = 'var(--plate-green)';
+      if (enviou) status.textContent = 'Dia salvo e enviado ao Google Sheets.';
+      else if (url){ status.style.color = 'var(--plate-red)'; status.textContent = 'Salvo no dispositivo, mas o envio ao Sheets falhou.'; }
+      else status.textContent = persistiu ? 'Dia salvo neste dispositivo.' : 'Salvo apenas nesta sessão.';
+    }
+
+    document.getElementById('hab-add').addEventListener('click', async function(){
+      var campo = document.getElementById('hab-novo');
+      var nome = campo.value.trim();
+      if (!nome) return;
+      if (lista.indexOf(nome) !== -1){ campo.value = ''; return; }
+      lista.push(nome);
+      await escrever(LISTAKEY, lista);
+      campo.value = '';
+      var marcados = Array.from(document.querySelectorAll('#hab-chips .chip[aria-pressed="true"]')).map(function(b){ return b.textContent; });
+      renderChips(marcados);
+    });
+
+    document.getElementById('hab-salvar').addEventListener('click', salvarDia);
+    document.getElementById('hab-data').addEventListener('change', preencherDia);
+
+    // init
+    var hoje = new Date();
+    document.getElementById('hab-data').value =
+      hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0') + '-' + String(hoje.getDate()).padStart(2,'0');
+    (async function(){
+      lista = await ler(LISTAKEY, PADRAO.slice());
+      renderChips([]);
+      await preencherDia();
+      renderHistoricoHab(await ler(HABKEY, []));
+    })();
+  })();
+</script>
+</body>
+</html>
