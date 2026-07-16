@@ -604,7 +604,7 @@
 </div>
 
 <script>
-  var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzqHpwza5BxQjxUrEsx55cL6M94mfFv5dNf9v9EJRy7M3dLx3c60bsrJYp-WS0fBnJTZg/exec';
+  var SHEETS_URL = 'https://script.google.com/macros/s/AKfycby9DMvLyxRGDM5mzMhdvSMZohDGm8KxTnJFpQr0nC53C30fU8PSKHNZCjmRhZyGJiNwoQ/exec';
 
   document.querySelectorAll('.tabs').forEach(function(tablist){
     var tabs = tablist.querySelectorAll('.tab');
@@ -939,15 +939,15 @@
       var persistiu = await escrever(HABKEY, reg);
       renderHistoricoHab(reg);
 
-      // envio ao Sheets (aba "Hábitos e Outcomes")
+      // envio ao Sheets (aba "habits-tracker": Data, Item, Valor)
       var enviou = false;
       var url = SHEETS_URL;
       if (url){
-        var linhas = lista.map(function(h){
-          return { data: fmtData(data), categoria: 'Hábito', item: h, valor: marcados.indexOf(h) !== -1 ? 'sim' : 'não' };
+        var linhas = marcados.map(function(h){
+          return { data: fmtData(data), item: h, valor: 'sim' };
         });
-        if (entrada.sono) linhas.push({ data: fmtData(data), categoria: 'Outcome', item: 'Sono', valor: entrada.sono });
-        if (entrada.evacuacao) linhas.push({ data: fmtData(data), categoria: 'Outcome', item: 'Evacuação', valor: entrada.evacuacao });
+        if (entrada.sono) linhas.push({ data: fmtData(data), item: 'Sono', valor: entrada.sono });
+        if (entrada.evacuacao) linhas.push({ data: fmtData(data), item: 'Evacuação', valor: entrada.evacuacao });
         try{
           await fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify({ tipo:'habitos', linhas: linhas }) });
           enviou = true;
