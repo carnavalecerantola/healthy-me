@@ -257,7 +257,7 @@
 
   <div class="day active" id="f1-fullbody" role="tabpanel">
     <h3 class="day-title"><i class="dot" style="background:var(--plate-yellow)"></i> Full Body</h3>
-    <p class="day-sub">6 exercícios · ~50 min</p>
+    <p class="day-sub">8 exercícios · ~60 min</p>
 
     <div class="ex">
       <span class="ex-nome">Agachamento goblet</span>
@@ -284,6 +284,18 @@
       <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+remada+maquina">ver demonstração</a>
     </div>
     <div class="ex">
+      <span class="ex-nome">Puxada frontal (pulley)</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <span class="ex-nota">Puxa a barra até a parte alta do peito, peito aberto, sem balançar o tronco.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+puxada+frontal+pulley">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Cadeira flexora</span>
+      <span class="ex-carga">3 × 10–12</span>
+      <span class="ex-nota">Posterior de coxa — equilibra o goblet e o leg press, que são dominantes de quadríceps.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+cadeira+flexora">ver demonstração</a>
+    </div>
+    <div class="ex">
       <span class="ex-nome">Desenvolvimento com halteres</span>
       <span class="ex-carga">3 × 10–12</span>
       <span class="ex-nota">Sentada com encosto, sobe os halteres até quase estender, sem arquear a lombar.</span>
@@ -299,13 +311,31 @@
 
   <div class="day" id="f1-cardio" role="tabpanel">
     <h3 class="day-title"><i class="dot" style="background:var(--plate-green)"></i> Cardio Zona 2</h3>
-    <p class="day-sub">30–40 min · intensidade conversável</p>
+    <p class="day-sub">30–40 min de cardio + core · ~50 min</p>
 
     <div class="ex">
       <span class="ex-nome">Caminhada inclinada (esteira) ou bike</span>
       <span class="ex-carga">30–40 min</span>
       <span class="ex-nota">Zona 2: você consegue conversar, mas não cantar. Na esteira: 5,5–6,5 km/h com inclinação 6–10%.</span>
       <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=caminhada+inclinada+esteira+queima+gordura+como+fazer">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Abdominal lateral com halteres</span>
+      <span class="ex-carga">3 × 12/lado</span>
+      <span class="ex-nota">Halter em uma mão, inclina o tronco para o lado devagar e volta contraindo o oblíquo. Sem pressa.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+abdominal+lateral+halter+obliquo">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Abdominal normal (crunch)</span>
+      <span class="ex-carga">3 × 15</span>
+      <span class="ex-nota">Sobe só até tirar as escápulas do chão, lombar apoiada. Expira ao subir.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+abdominal+crunch+correto">ver demonstração</a>
+    </div>
+    <div class="ex">
+      <span class="ex-nome">Abdominal infra (elevação de pernas)</span>
+      <span class="ex-carga">3 × 12</span>
+      <span class="ex-nota">Deitada, sobe as pernas até 90° e desce controlando, sem deixar a lombar descolar do chão.</span>
+      <a class="ex-video" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=como+fazer+abdominal+infra+elevacao+de+pernas">ver demonstração</a>
     </div>
   </div>
 </section>
@@ -671,6 +701,11 @@
       if (n.indexOf('prancha') !== -1) return 's';
       if (n.indexOf('cardio') !== -1 || n.indexOf('caminhada') !== -1) return 'min';
       if (n.indexOf('dead bug') !== -1) return 'reps';
+      if (n.indexOf('abdominal') !== -1){
+        // abdominais com carga externa registram kg; os demais, repetições
+        if (n.indexOf('halter') !== -1 || n.indexOf('polia') !== -1 || n.indexOf('cabo') !== -1) return 'kg';
+        return 'reps';
+      }
       return 'kg';
     }
 
