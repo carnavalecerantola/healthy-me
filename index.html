@@ -18,7 +18,7 @@
     --plate-blue:#2457A0;  /* superior */
     --plate-green:#2E7D4F; /* cardio/core */
     --plate-yellow:#C9930A;/* full body */
-    --radius:11px;
+    --radius:10px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -577,8 +577,8 @@
       <input type="date" id="hab-data">
     </div>
     <div class="campo">
-      <label>Hábitos cumpridos hoje</label>
-      <div class="chips" id="hab-chips"></div>
+      <label>Hábitos do dia — responda sim ou não para cada um</label>
+      <div id="hab-chips"></div>
       <div class="add-habito">
         <input type="text" id="hab-novo" placeholder="novo hábito…">
         <button id="hab-add" type="button">+ adicionar</button>
@@ -890,21 +890,56 @@
 
     var lista = PADRAO.slice();
 
-    function renderChips(marcados){
-      marcados = marcados || [];
+    // respostas: objeto { nomeDoHabito: 'sim' | 'não' }
+    function normalizar(habitos){
+      if (Array.isArray(habitos)){ // formato antigo: lista dos cumpridos
+        var obj = {};
+        habitos.forEach(function(h){ obj[h] = 'sim'; });
+        return obj;
+      }
+      return habitos || {};
+    }
+
+    function renderHabitos(respostas){
+      respostas = normalizar(respostas);
       var alvo = document.getElementById('hab-chips');
       alvo.innerHTML = '';
       lista.forEach(function(nome){
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'chip';
-        b.textContent = nome;
-        b.setAttribute('aria-pressed', marcados.indexOf(nome) !== -1 ? 'true' : 'false');
-        b.addEventListener('click', function(){
-          b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        var linha = document.createElement('div');
+        linha.className = 'outcome-linha hab-item';
+        linha.dataset.habito = nome;
+        var span = document.createElement('span');
+        span.className = 'nome';
+        span.textContent = nome;
+        var seg = document.createElement('div');
+        seg.className = 'segmento';
+        seg.setAttribute('role','group');
+        seg.setAttribute('aria-label', nome);
+        ['sim','não'].forEach(function(valor){
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.dataset.valor = valor;
+          b.textContent = valor;
+          b.setAttribute('aria-pressed', respostas[nome] === valor ? 'true' : 'false');
+          b.addEventListener('click', function(){
+            seg.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+            b.setAttribute('aria-pressed','true');
+          });
+          seg.appendChild(b);
         });
-        alvo.appendChild(b);
+        linha.appendChild(span);
+        linha.appendChild(seg);
+        alvo.appendChild(linha);
       });
+    }
+
+    function getRespostas(){
+      var respostas = {};
+      document.querySelectorAll('#hab-chips .hab-item').forEach(function(linha){
+        var sel = linha.querySelector('button[aria-pressed="true"]');
+        respostas[linha.dataset.habito] = sel ? sel.dataset.valor : null;
+      });
+      return respostas;
     }
 
     function setSegmento(id, valor){
@@ -929,7 +964,7 @@
       var data = document.getElementById('hab-data').value;
       var reg = await ler(HABKEY, []);
       var dia = reg.find(function(e){ return e.data === data; });
-      renderChips(dia ? dia.habitos : []);
+      renderHabitos(dia ? dia.habitos : {});
       setSegmento('out-sono', dia ? dia.sono : null);
       setSegmento('out-evacuacao', dia ? dia.evacuacao : null);
     }
@@ -941,10 +976,12 @@
       reg.slice().sort(function(a,b){ return b.data.localeCompare(a.data); }).slice(0,14).forEach(function(e){
         var div = document.createElement('div');
         div.className = 'hist-item';
+        var resp = normalizar(e.habitos);
+        var sims = Object.keys(resp).filter(function(h){ return resp[h] === 'sim'; });
         var partes = [];
         if (e.sono) partes.push('sono: <b>' + e.sono + '</b>');
         if (e.evacuacao) partes.push('evacuação: <b>' + e.evacuacao + '</b>');
-        partes.push('hábitos: <b>' + e.habitos.length + '/' + lista.length + '</b>' + (e.habitos.length ? ' (' + e.habitos.join(', ') + ')' : ''));
+        partes.push('hábitos sim: <b>' + sims.length + '/' + Object.keys(resp).length + '</b>' + (sims.length ? ' (' + sims.join(', ') + ')' : ''));
         div.innerHTML = '<div class="hist-head"><span class="quando">' + fmtData(e.data) + '</span></div>' +
                         '<div class="hist-cargas">' + partes.join(' · ') + '</div>';
         var del = document.createElement('button');
@@ -965,8 +1002,14 @@
       var data = document.getElementById('hab-data').value;
       var status = document.getElementById('hab-status');
       if (!data){ status.textContent = 'Escolha a data.'; status.style.color = 'var(--plate-red)'; return; }
-      var marcados = Array.from(document.querySelectorAll('#hab-chips .chip[aria-pressed="true"]')).map(function(b){ return b.textContent; });
-      var entrada = { data: data, habitos: marcados, sono: getSegmento('out-sono'), evacuacao: getSegmento('out-evacuacao') };
+      var respostas = getRespostas();
+      var pendentes = lista.filter(function(h){ return !respostas[h]; });
+      if (pendentes.length){
+        status.style.color = 'var(--plate-red)';
+        status.textContent = 'Responda sim ou não para: ' + pendentes.join(', ') + '.';
+        return;
+      }
+      var entrada = { data: data, habitos: respostas, sono: getSegmento('out-sono'), evacuacao: getSegmento('out-evacuacao') };
 
       var reg = await ler(HABKEY, []);
       reg = reg.filter(function(e){ return e.data !== data; });
@@ -974,12 +1017,12 @@
       var persistiu = await escrever(HABKEY, reg);
       renderHistoricoHab(reg);
 
-      // envio ao Sheets (aba "habits-tracker": Data, Item, Valor)
+      // envio ao Sheets (aba "habits-tracker": Data, Hábito, Valor — uma linha por hábito, sempre)
       var enviou = false;
       var url = SHEETS_URL;
       if (url){
-        var linhas = marcados.map(function(h){
-          return { data: fmtData(data), item: h, valor: 'sim' };
+        var linhas = lista.map(function(h){
+          return { data: fmtData(data), item: h, valor: respostas[h] };
         });
         if (entrada.sono) linhas.push({ data: fmtData(data), item: 'Sono', valor: entrada.sono });
         if (entrada.evacuacao) linhas.push({ data: fmtData(data), item: 'Evacuação', valor: entrada.evacuacao });
@@ -1003,8 +1046,7 @@
       lista.push(nome);
       await escrever(LISTAKEY, lista);
       campo.value = '';
-      var marcados = Array.from(document.querySelectorAll('#hab-chips .chip[aria-pressed="true"]')).map(function(b){ return b.textContent; });
-      renderChips(marcados);
+      renderHabitos(getRespostas()); // preserva as respostas já dadas
     });
 
     document.getElementById('hab-salvar').addEventListener('click', salvarDia);
@@ -1016,7 +1058,7 @@
       hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0') + '-' + String(hoje.getDate()).padStart(2,'0');
     (async function(){
       lista = await ler(LISTAKEY, PADRAO.slice());
-      renderChips([]);
+      renderHabitos({});
       await preencherDia();
       renderHistoricoHab(await ler(HABKEY, []));
     })();
